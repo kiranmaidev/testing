@@ -1,0 +1,56 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: EKS-course-cluster
+  region: us-east-1
+
+nodeGroups:
+  - name: ng-1
+    instanceType: t2.small
+    desiredCapacity: 3
+    ssh: # use existing EC2 key
+      publicKeyName: N-Virginia-key
+  - name: scale-east1a
+    instanceType: t3.large
+    desiredCapacity: 1
+    maxSize: 10
+    availabilityZones: ["us-east-1a"]
+    iam:
+      withAddonPolicies:
+        autoscaler: true
+    labels:
+      nodegroup-type: stateful-workload
+      instance-type: onDemand
+    ssh:
+      publicKeyName: N-Virginia-key
+  - name: scale-east1b
+    instanceType: t3.large
+    desiredCapacity: 1
+    maxSize: 10
+    availabilityZones: ["us-east-1b"]
+    iam:
+      withAddonPolicies:
+        autoscaler: true
+    labels:
+      nodegroup-type: stateful-workload
+      instance-type: onDemand
+    ssh:
+      publicKeyName: N-Virginia-key  
+  - name: scale-spot
+    desiredCapacity: 1
+    maxSize: 10
+    instanceDistribution:
+      instanceTypes: ["t3.xlarge", "t2.xlarge", "m5.xlarge"] 
+      onDemandBaseCapacity: 0
+      onDemandPercentageAboveBaseCapacity: 0
+    availabilityZones: ["us-east-1a", "us-east-1b", "us-east-1c"]
+    iam:
+      withAddonPolicies:
+        autoscaler: true
+    labels:
+      nodegroup-type: stateful-workload
+      instance-type: spot
+    ssh:
+      publicKeyName: N-Virginia-key
+availabilityZones: ["us-east-1a", "us-east-1b", "us-east-1c"]      
